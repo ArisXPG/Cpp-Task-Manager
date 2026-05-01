@@ -23,7 +23,6 @@
 <h2 align="center">🤔 How to use? 🗒️</h2>
 
 <p align="center">Using it is straight-forward. Type the command you want and the necessary parameters it requires.
-Don't worry. All commands are case insensitive so "ADD" and "add" work just fine.
 Commands and respective parameters are as follows:</p>
 
 ### 'Add' Command
