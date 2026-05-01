@@ -234,22 +234,36 @@ void TaskManager::sortTasks(string criteria, string order){
             cout << "Tasks sorted by title in descending order successfully!" << endl << endl;
             viewTasks();
         }
+        else if(order == ""){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.getTitle() > b.getTitle();
+            });
+            cout << "Tasks sorted by title in descending order successfully!" << endl << endl;
+            viewTasks();
+        }
         else {
             cout << "Invalid sort order! Please use 'asc' for ascending or 'desc' for descending." << endl << endl;
         }
     }
     
     else if(criteria == "completed"){
-        if(order == "first"){
+        if(order == "desc"){
             sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
                 return a.isCompleted() > b.isCompleted();
             });
             cout << "Tasks sorted by status in ascending order successfully!" << endl << endl;
             viewTasks();
         }
-        else if(order == "last"){
+        else if(order == "asc"){
             sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
                 return a.isCompleted() < b.isCompleted();
+            });
+            cout << "Tasks sorted by status in descending order successfully!" << endl << endl;
+            viewTasks();
+        }
+        else if(order == ""){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.isCompleted() > b.isCompleted();
             });
             cout << "Tasks sorted by status in descending order successfully!" << endl << endl;
             viewTasks();
@@ -260,22 +274,29 @@ void TaskManager::sortTasks(string criteria, string order){
     }
 
     else if(criteria == "favorite"){
-        if(order == "first"){
+        if(order == "desc"){
             sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
                 return a.isFavorited() > b.isFavorited();
             });
             cout << "Tasks sorted by favorited first successfully!" << endl << endl;
             viewTasks();
         }
-        else if(order == "last"){
+        else if(order == "asc"){
             sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
                     return a.isFavorited() < b.isFavorited();
             });
             cout << "Tasks sorted by favorited last successfully!" << endl << endl;
             viewTasks();
         }
+        else if(order == ""){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                    return a.isFavorited() > b.isFavorited();
+            });
+            cout << "Tasks sorted by favorited first successfully!" << endl << endl;
+            viewTasks();
+        }
         else {
-            cout << "Invalid sort order! Please use 'first' to sort favorited tasks first or 'last' to sort favorited tasks last." << endl << endl;
+            cout << "Invalid sort order! Please use 'asc' for ascending or 'desc' for descending." << endl << endl;
         }
     }
 
