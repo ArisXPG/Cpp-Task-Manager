@@ -6,6 +6,7 @@ private:
     std::string title;
     bool completed;
     bool favorited;
+    int id;
 
 public:
     Task();
@@ -13,10 +14,12 @@ public:
     std::string getTitle() const;
     bool isCompleted() const;
     bool isFavorited() const;
+    int getId() const;
 
     void setTitle(const std::string& t);
     void isCompleted(bool c);
     void isFavorited(bool f);
+    void setId(int i);
 
     void markCompleted();
     void markPending();

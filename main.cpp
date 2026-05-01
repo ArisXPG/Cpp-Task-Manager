@@ -13,7 +13,7 @@ using namespace std;
 int main(){
     string user, password;
     TaskManager manager;
-    manager.LoadTasks();
+    manager.loadTasks();
 
 // Unnecessary login system for fun
     cout << "User: ";
@@ -86,6 +86,37 @@ int main(){
             }
         }
 
+        else if(input.find("edit") == 0){
+            size_t position = input.find(" ");
+            if(position != string::npos){
+                string taskNumStr = input.substr(position + 1);
+                int editTaskNum = stoi(taskNumStr);
+                manager.editTask(editTaskNum);
+            }
+            else {
+                cout << "Invalid command format! Please use 'edit [task number]'." << endl << endl;
+            }
+        }
+
+        else if(input.find("sort") == 0){
+
+            if(input == "sort custom"){
+                manager.customSortTasks();
+            }
+            else{
+                size_t firstPosition = input.find(" ");
+                size_t secondPosition = input.find(" ", firstPosition + 1);
+                if(firstPosition != string::npos && secondPosition != string::npos){
+                    string criteria = input.substr(firstPosition + 1, secondPosition - firstPosition - 1);
+                    string order = input.substr(secondPosition + 1);
+                    manager.sortTasks(criteria, order);
+                }
+                else {
+                    cout << "Invalid command format! Please use 'sort [criteria] [order]'." << endl << endl;
+                }
+            }    
+        }
+
         else if(input == "exit"){
             manager.saveTasks();
             cout << "Saving tasks to file and exiting. Have a good day " << user << "!" << endl;
@@ -99,6 +130,8 @@ int main(){
             cout << "complete [task number] — Mark a task as completed or pending" << endl;
             cout << "delete [task number] — Delete a task" << endl;
             cout << "search [keyword] — Search for tasks containing a keyword" << endl;
+            cout << "edit [task number] — Edit the title of a task" << endl;
+            cout << "sort [criteria] [order] — Sort tasks by criteria and order" << endl;
             cout << "favorite [task number] — Mark/unmark a task as favorite" << endl;
             cout << "exit — Save tasks and exit the program" << endl;
             cout << endl;

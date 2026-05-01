@@ -9,10 +9,13 @@ private:
 public:
     void addTask();
     void viewTasks();
-    void LoadTasks();
+    void loadTasks();
     void saveTasks();
     void taskCompletion(int completedTaskNum);
     void taskDeletion(int deleteTaskNum);
     void taskSearch(std::string keyword);
     void markFavorite(int favoriteTaskNum);
+    void editTask(int index);
+    void sortTasks(std::string criteria, std::string order);
+    void customSortTasks();
 };

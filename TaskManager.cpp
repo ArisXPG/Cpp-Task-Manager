@@ -6,6 +6,8 @@
 #include <limits>
 #include <fstream>
 #include <iomanip>
+#include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -34,7 +36,7 @@ void TaskManager::viewTasks(){
 }
 
 // Function for loading tasks from file
-void TaskManager::LoadTasks(){
+void TaskManager::loadTasks(){
     ifstream inTasks("tasks.txt");
     if(inTasks.is_open()){
         string line;
@@ -198,4 +200,150 @@ void TaskManager::markFavorite(int favoriteTaskNum){
     else {
         cout << "A task with that number does not exist!" << endl << endl;
     }
+}
+
+void TaskManager::editTask(int index){
+    int indexEdit = index - 1;
+
+    if(indexEdit >= 0 && indexEdit < tasks.size()){
+        string newTitle;
+        cout << "Enter a new title for the selected task: ";
+        getline(cin, newTitle);
+        tasks[indexEdit].setTitle(newTitle);
+
+        cout << "Task No. " << index << " title updated successfully!" << endl << endl;
+    }
+    else {
+        cout << "Invalid task number!" << endl << endl;
+    }
+}
+
+void TaskManager::sortTasks(string criteria, string order){
+    if(criteria == "title"){
+        if(order == "asc"){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.getTitle() < b.getTitle();
+            });
+            cout << "Tasks sorted by title in ascending order successfully!" << endl << endl;
+            viewTasks();
+        }
+        else if(order == "desc"){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.getTitle() > b.getTitle();
+            });
+            cout << "Tasks sorted by title in descending order successfully!" << endl << endl;
+            viewTasks();
+        }
+        else {
+            cout << "Invalid sort order! Please use 'asc' for ascending or 'desc' for descending." << endl << endl;
+        }
+    }
+    
+    else if(criteria == "completed"){
+        if(order == "first"){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.isCompleted() > b.isCompleted();
+            });
+            cout << "Tasks sorted by status in ascending order successfully!" << endl << endl;
+            viewTasks();
+        }
+        else if(order == "last"){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.isCompleted() < b.isCompleted();
+            });
+            cout << "Tasks sorted by status in descending order successfully!" << endl << endl;
+            viewTasks();
+        }
+        else {
+            cout << "Invalid sort order! Please use 'asc' for ascending or 'desc' for descending." << endl << endl;
+        }
+    }
+
+    else if(criteria == "favorite"){
+        if(order == "first"){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.isFavorited() > b.isFavorited();
+            });
+            cout << "Tasks sorted by favorited first successfully!" << endl << endl;
+            viewTasks();
+        }
+        else if(order == "last"){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                    return a.isFavorited() < b.isFavorited();
+            });
+            cout << "Tasks sorted by favorited last successfully!" << endl << endl;
+            viewTasks();
+        }
+        else {
+            cout << "Invalid sort order! Please use 'first' to sort favorited tasks first or 'last' to sort favorited tasks last." << endl << endl;
+        }
+    }
+
+    else {
+        cout << "Invalid sort criteria! Please use 'title', 'completed', or 'favorite'." << endl << endl;
+    }
+}
+
+void TaskManager::customSortTasks(){
+        struct SortCriterion {
+            string criteria;
+            bool ascending;
+        };
+        
+        vector<SortCriterion> criteriaList;
+        vector<string> criterions;
+
+        cout << "Please enter what criteria to sort with and the order for each criteria:\n> ";
+        string input;
+        getline(cin, input);
+        cout << "Sorting tasks by: " << input << endl << endl;
+
+        stringstream ss(input);
+        string criterion;
+        while(getline(ss, criterion, ',')) {
+            criterions.push_back(criterion);
+        }
+
+        for (string& crit : criterions){
+            stringstream critStream(crit);
+            string critName, critOrder;
+            critStream >> critName >> critOrder;
+
+            SortCriterion c;
+
+            c.criteria = critName;
+            c.ascending = (critOrder == "asc");
+
+            criteriaList.push_back(c);
+        }
+
+        sort(tasks.begin(), tasks.end(), [&criteriaList](const Task& a, const Task& b){
+            for(const SortCriterion& c : criteriaList){
+                if(c.criteria == "favorite"){
+                    if(a.isFavorited() != b.isFavorited()){
+                        return c.ascending ? 
+                            a.isFavorited() < b.isFavorited() : a.isFavorited() > b.isFavorited();
+                    }
+                }
+
+                else if(c.criteria == "completed"){
+                    if(a.isCompleted() != b.isCompleted()){
+                        return c.ascending ? 
+                            a.isCompleted() < b.isCompleted() : a.isCompleted() > b.isCompleted();
+                    }
+                }
+
+                else if(c.criteria == "title"){
+                    if(a.getTitle() != b.getTitle()){
+                        return c.ascending ? 
+                            a.getTitle() < b.getTitle() : a.getTitle() > b.getTitle();
+                    }
+                }              
+            }
+            return false;
+        });
+
+        cout << "Tasks sorted by custom criteria successfully!" << endl << endl;
+        viewTasks();
+
 }
