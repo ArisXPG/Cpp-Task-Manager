@@ -5,7 +5,7 @@
 
 ---
 
-<p align="center">The project is written in its entirety with C++ and as of now is in a CLI (Command-Line Interface) phase but I got my hopes up for making it a GUI app :3. Let's get you up to speed shall we?</p>
+<p align="center">The project is written in its entirety in C++ and as of now is in a CLI (Command-Line Interface) phase but I got my hopes up for making it a GUI app :3. Let's get you up to speed shall we?</p>
 
 --- 
 
