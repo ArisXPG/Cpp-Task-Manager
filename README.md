@@ -68,7 +68,7 @@ Commands and respective parameters are as follows:</p>
 ---
 
 <h2 align="center">📂 Loading & Saving 📝</h2>
-<p align="center">Loading of tasks is done automatically when the app opens. Saving though requires the command "exit" to run, otherwise you <strong><em>will</em></strong> lose your work. Sorry not sorry >;3c</p>
+<p align="center">Loading of tasks is done automatically when the app opens. Saving though requires the command "exit" to run, otherwise you <strong><em>will</em></strong> lose your work. Sorry not sorry >;3c. Saving and loading happen in a text file created the first time you run the "exit". You <em>can</em> manually type your own tasks if (for some reason) you wish to do so, simply make sure you follow the format of the other tasks!</p>
 
 ---
 
