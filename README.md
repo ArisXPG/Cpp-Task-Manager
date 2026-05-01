@@ -27,6 +27,7 @@ Commands and respective parameters are as follows:</p>
 
 ### 'Add' Command
 > add
+>
 > \[Task Title]
 
 ### 'View' Command
@@ -53,6 +54,7 @@ Commands and respective parameters are as follows:</p>
 
 ### 'Custom Sorting' Command
 > sort custom
+>
 > \[favorite/title/completed] \[asc/desc]**(**, \[favorite/title/completed] \[asc/desc], \[favorite/title/completed] \[asc/desc]**)**
 >
 > **IMPORTANT: REMEMBER TO INCLUDE A COMMA ',' BETWEEN EACH SORT OTHERWISE *IT WILL NOT WORK PROPERLY*!**
