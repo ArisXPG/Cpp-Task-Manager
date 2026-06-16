@@ -26,9 +26,7 @@
 Commands and respective parameters are as follows:</p>
 
 ### 'Add' Command
-> add
->
-> \[Task Title]
+> add \[Task Title]
 
 ### 'View' Command
 > view
@@ -46,8 +44,7 @@ Commands and respective parameters are as follows:</p>
 > search \[Keyword]
 
 ### 'Edit' Command
-> edit \[Task Number]
-> \[New Task Title]
+> edit \[Task Number] \[title/priority]:[New Value] \([\priority/value]:[New Value])
 
 ### 'Sorting' Command
 > sort \[favorite/title/completed] \[asc/desc]
@@ -55,7 +52,9 @@ Commands and respective parameters are as follows:</p>
 ### 'Custom Sorting' Command
 > sort custom
 >
-> \[favorite/title/completed] \[asc/desc]**(**, \[favorite/title/completed] \[asc/desc], \[favorite/title/completed] \[asc/desc]**)**
+> \[id/priority/title/completed/favorited] \[asc/desc]
+> 
+> **(**Additional sorts can be added by following the same format, separated by a comma**)**
 >
 > **IMPORTANT: REMEMBER TO INCLUDE A COMMA ',' BETWEEN EACH SORT OTHERWISE *IT WILL NOT WORK PROPERLY*!**
 
@@ -75,7 +74,7 @@ Commands and respective parameters are as follows:</p>
 ---
 
 <h2 align="center">💡 Future Ideas/Features 💡</h2>
-<p align="center">Task deadlines • Priority system • Categories/Folders • Undo system • Task IDs • GUI version</p>
+<p align="center">Task deadlines • Priority system (Only task priorities added) • Categories/Folders • Undo system • GUI version</p>
 
 ---
 

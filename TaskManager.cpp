@@ -8,30 +8,48 @@
 #include <iomanip>
 #include <algorithm>
 #include <sstream>
+#include <typeinfo>
 
 using namespace std;
 
-// Function for task addition
-void TaskManager::addTask(){
-    Task newTask;
-    string title;
+int TASK_ID_COUNTER = 1;
 
-    cout << "Enter task title: ";
-    getline(cin, title);
+
+namespace {
+    bool tryParseInt(const string& text, int& value){
+        try {
+            size_t parsedChars = 0;
+            value = stoi(text, &parsedChars);
+            return parsedChars == text.size();
+        }
+        catch(...) {
+            return false;
+        }
+    }
+}
+
+// Function for task addition
+void TaskManager::addTask(string title){
+    Task newTask;
+
     newTask.setTitle(title);
     newTask.isCompleted(false);
     newTask.isFavorited(false);
+    newTask.setId(TASK_ID_COUNTER);
+    newTask.setPriority(5);
+    newTask.setDateCreated(newTask.getDateCreated());
     tasks.push_back(newTask);
+    TASK_ID_COUNTER++;
 }
 
 // Function for viewing tasks
 void TaskManager::viewTasks(){
-    cout << "[=————REGISTERED TASKS————=]" << endl;
+    cout << "[=----REGISTERED TASKS----=]" << endl;
     cout << "Tasks: " << endl;
-    for(int i = 0; i < tasks.size(); i++){
-        tasks[i].display(i);
+    for(size_t i = 0; i < tasks.size(); i++){
+        tasks[i].display(static_cast<int>(i));
     }
-    cout << "[——————————————————————————] " << endl;
+    cout << "[--------------------------] " << endl;
     cout << endl;
 }
 
@@ -44,16 +62,40 @@ void TaskManager::loadTasks(){
             size_t position = line.find("|");
         
             if(position != string::npos){
+                size_t secondPosition = line.find("|", position + 1);
+                size_t thirdPosition = line.find("|", secondPosition + 1);
+                size_t fourthPosition = line.find("|", thirdPosition + 1);
+                size_t fifthPosition = line.find("|", fourthPosition + 1);
+
+                if(secondPosition == string::npos || thirdPosition == string::npos || fourthPosition == string::npos || fifthPosition == string::npos){
+                    cout << "Skipping malformed task line: " << line << endl;
+                    continue;
+                }
+
                 string status = line.substr(0, position);
-                string title = line.substr(position + 1).substr(0, line.substr(position + 1).find("|"));
-                size_t secondPosition = line.find(title) + title.size() + 1;
-                string favorited = line.substr(secondPosition);
+                string title = line.substr(position + 1, secondPosition - position - 1);
+                string favorited = line.substr(secondPosition + 1, thirdPosition - secondPosition - 1);
+                string idStr = line.substr(thirdPosition + 1, fourthPosition - thirdPosition - 1);
+                string priorityStr = line.substr(fourthPosition + 1, fifthPosition - fourthPosition - 1);
+                string dateStr = line.substr(fifthPosition + 1);
+
+                int loadedId;
+                int loadedPriority;
+                if(!tryParseInt(idStr, loadedId) || !tryParseInt(priorityStr, loadedPriority)){
+                    cout << "Skipping task line with invalid number: " << line << endl;
+                    continue;
+                }
 
                 Task loadedTask;
                 loadedTask.isCompleted((status == "1"));
                 loadedTask.setTitle(title);
                 loadedTask.isFavorited((favorited == "1"));
+                loadedTask.setId(loadedId);
+                loadedTask.setPriority(loadedPriority);
+                loadedTask.setDateCreated(dateStr);
                 tasks.push_back(loadedTask);
+
+                TASK_ID_COUNTER = max(TASK_ID_COUNTER, loadedId + 1);
             }
         }
     }
@@ -65,13 +107,12 @@ void TaskManager::loadTasks(){
 inTasks.close();
 }
 
-
 // Function for saving tasks to file
 void TaskManager::saveTasks(){
     ofstream outTasks("tasks.txt");
     if(outTasks.is_open()){
-        for(int i = 0; i < tasks.size(); i++){
-            outTasks << tasks[i].isCompleted() << "|" << tasks[i].getTitle() << "|" << tasks[i].isFavorited() << endl;
+        for(size_t i = 0; i < tasks.size(); i++){
+            outTasks << tasks[i].isCompleted() << "|" << tasks[i].getTitle() << "|" << tasks[i].isFavorited() << "|" << tasks[i].getId() << "|" << tasks[i].getPriority() << "|" << tasks[i].getDateCreated() << endl;
         }
     }
 
@@ -87,7 +128,7 @@ void TaskManager::taskCompletion(int completedTaskNum){
                 
     int indexCompleted = completedTaskNum - 1;
                 
-    if(completedTaskNum > 0 && completedTaskNum <= tasks.size()){
+    if(completedTaskNum > 0 && completedTaskNum <= static_cast<int>(tasks.size())){
         if(tasks[indexCompleted].isCompleted() == true){
             char response;
             cout << "Task is already marked as completed! Do you wish to mark it as pending? (Y/N)" << endl << endl;
@@ -122,7 +163,7 @@ void TaskManager::taskCompletion(int completedTaskNum){
 void TaskManager::taskDeletion(int deleteTaskNum){
     int indexDelete = deleteTaskNum - 1;
 
-    if(deleteTaskNum > 0 && deleteTaskNum <= tasks.size()){
+    if(deleteTaskNum > 0 && deleteTaskNum <= static_cast<int>(tasks.size())){
         char response;
         cout << "Are you sure you wish to delete task No. " << deleteTaskNum << "? (Y/N)\n";
         cin >> response;
@@ -153,9 +194,9 @@ void TaskManager::taskSearch(string keyword){
     cout << "Search results for '" << keyword << "': " << endl;
     bool found = false;
 
-    for(int i = 0; i < tasks.size(); i++){
+    for(size_t i = 0; i < tasks.size(); i++){
         if(tasks[i].matches(keyword)){
-            tasks[i].display(i);
+            tasks[i].display(static_cast<int>(i));
             found = true;
         }
     }
@@ -163,7 +204,7 @@ void TaskManager::taskSearch(string keyword){
     if(!found){
         cout << "No tasks found containing '" << keyword << "'." << endl;
     }
-    cout << "[——————————————————————] " << endl;
+    cout << "[----------------------] " << endl;
     cout << endl;
 }
 
@@ -171,7 +212,7 @@ void TaskManager::taskSearch(string keyword){
 void TaskManager::markFavorite(int favoriteTaskNum){
     int indexFavorite = favoriteTaskNum - 1;
 
-    if(favoriteTaskNum > 0 && favoriteTaskNum <= tasks.size()){
+    if(favoriteTaskNum > 0 && favoriteTaskNum <= static_cast<int>(tasks.size())){
         if(tasks[indexFavorite].isFavorited() == true){
             char response;
             cout << "Task is already marked as favorited! Do you wish to unmark it as favorite? (Y/N)" << endl << endl;
@@ -202,20 +243,43 @@ void TaskManager::markFavorite(int favoriteTaskNum){
     }
 }
 
-void TaskManager::editTask(int index){
+void TaskManager::editTask(int index, const string& args){
     int indexEdit = index - 1;
+    string titleValue, priorityValue;
 
-    if(indexEdit >= 0 && indexEdit < tasks.size()){
-        string newTitle;
-        cout << "Enter a new title for the selected task: ";
-        getline(cin, newTitle);
-        tasks[indexEdit].setTitle(newTitle);
+    size_t titlePosition = args.find("title:");
+    size_t priorityPosition = args.find("priority:"); 
+    
+    if(titlePosition != string::npos){
+        size_t end = (priorityPosition != string::npos && priorityPosition > titlePosition)
+                    ? priorityPosition
+                    : args.size();
 
-        cout << "Task No. " << index << " title updated successfully!" << endl << endl;
+        titleValue = args.substr(titlePosition + 6, end - (titlePosition + 6));
+        }
+        
+    if(priorityPosition != string::npos){
+        priorityValue = args.substr(priorityPosition + 9);
+    }
+
+    if(indexEdit >= 0 && indexEdit < static_cast<int>(tasks.size())){
+        if(!titleValue.empty()){
+            tasks[indexEdit].setTitle(titleValue);
+            cout << "Task No. " << index << " title updated successfully!" << endl;
+        }
+
+        if(!priorityValue.empty())
+        {
+            int p;
+            if(tryParseInt(priorityValue, p))
+                tasks[indexEdit].setPriority(p);
+            cout << "Task No. " << index << " priority updated successfully!" << endl;
+        }
     }
     else {
         cout << "Invalid task number!" << endl << endl;
     }
+    cout << endl;
 }
 
 void TaskManager::sortTasks(string criteria, string order){
@@ -273,7 +337,7 @@ void TaskManager::sortTasks(string criteria, string order){
         }
     }
 
-    else if(criteria == "favorite"){
+    else if(criteria == "favorited"){
         if(order == "desc"){
             sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
                 return a.isFavorited() > b.isFavorited();
@@ -300,8 +364,62 @@ void TaskManager::sortTasks(string criteria, string order){
         }
     }
 
+    else if(criteria == "priority"){
+        if(order == "desc"){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.getPriority() > b.getPriority();
+            });
+            cout << "Tasks sorted by priority in descending order successfully!" << endl << endl;
+            viewTasks();
+        }
+        else if(order == "asc"){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.getPriority() < b.getPriority();
+            });
+            cout << "Tasks sorted by priority in ascending order successfully!" << endl << endl;
+            viewTasks();
+        }
+        else if(order == ""){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.getPriority() > b.getPriority();
+            });
+            cout << "Tasks sorted by priority in descending order successfully!" << endl << endl;
+            viewTasks();
+        }
+        else {
+            cout << "Invalid sort order! Please use 'asc' for ascending or 'desc' for descending." << endl << endl;
+        }
+    }
+
+    else if(criteria == "id"){
+        if(order == "desc"){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.getId() > b.getId();
+            });
+            cout << "Tasks sorted by ID in descending order successfully!" << endl << endl;
+            viewTasks();
+        }
+        else if(order == "asc"){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.getId() < b.getId();
+            });
+            cout << "Tasks sorted by ID in ascending order successfully!" << endl << endl;
+            viewTasks();
+        }
+        else if(order == ""){
+            sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b){
+                return a.getId() > b.getId();
+            });
+            cout << "Tasks sorted by ID in descending order successfully!" << endl << endl;
+            viewTasks();
+        }
+        else {
+            cout << "Invalid sort order! Please use 'asc' for ascending or 'desc' for descending." << endl << endl;
+        }
+    }
+
     else {
-        cout << "Invalid sort criteria! Please use 'title', 'completed', or 'favorite'." << endl << endl;
+        cout << "Invalid sort criteria! Please use 'id', 'title', 'priority', 'completed', or 'favorited'." << endl << endl;
     }
 }
 
@@ -359,7 +477,25 @@ void TaskManager::customSortTasks(){
                         return c.ascending ? 
                             a.getTitle() < b.getTitle() : a.getTitle() > b.getTitle();
                     }
-                }              
+                }    
+                
+                else if(c.criteria == "priority"){
+                    if(a.getPriority() != b.getPriority()){
+                        return c.ascending ? 
+                            a.getPriority() < b.getPriority() : a.getPriority() > b.getPriority();
+                    }
+                }
+
+                else if(c.criteria == "id"){
+                    if(a.getId() != b.getId()){
+                        return c.ascending ? 
+                            a.getId() < b.getId() : a.getId() > b.getId();
+                    }
+                }
+
+                else {
+                    cout << "Invalid sort criteria '" << c.criteria << "'! Skipping this criteria." << endl;
+                }
             }
             return false;
         });
@@ -367,4 +503,8 @@ void TaskManager::customSortTasks(){
         cout << "Tasks sorted by custom criteria successfully!" << endl << endl;
         viewTasks();
 
+}
+
+void TaskManager::createTaskFolder(string folderName){
+    (void)folderName;
 }
